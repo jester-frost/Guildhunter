@@ -17,11 +17,12 @@ repositório (`sons/`, `romfs/` e a arte própria são gitignored).
 
 ## Latest build
 
-O build mais recente (sons sintetizados, sem conteúdo da Capcom) fica em `dist/`:
+Os builds (sons sintetizados, sem conteúdo da Capcom) ficam nos
+[**Releases**](../../releases):
 
-- `dist/guild-hunter.cia` — instala pelo **FBI** (menu HOME), ou pelo
-  **FBI → Remote Install** apontando para a URL do `.cia`
-- `dist/guild-hunter.3dsx` — copie para `sdmc:/3ds/` e abra pelo **Homebrew Launcher**
+- `guild-hunter.cia` — instala pelo **FBI** (menu HOME), ou pelo
+  **FBI → Remote Install** apontando para a URL do asset
+- `guild-hunter.3dsx` — copie para `sdmc:/3ds/` e abra pelo **Homebrew Launcher**
 
 ## Compilar
 
