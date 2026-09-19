@@ -1,0 +1,155 @@
+# Receita do .cia. O que importa aqui, e que não importa no .3dsx:
+#
+# Rodando pelo Homebrew Launcher o app herda as permissões do launcher, que
+# são largas. Instalado como CIA ele só tem o que está declarado abaixo --
+# então cada serviço que usamos precisa aparecer em ServiceAccessControl, e o
+# acesso ao cartão precisa de DirectSdmc. Faltando um, o app abre e falha numa
+# função só, do jeito mais confuso possível: sem som, ou sem ler a credencial,
+# ou sem achar os perfis.
+
+BasicInfo:
+  Title                   : "$(APP_TITLE)"
+  CompanyCode             : "00"
+  ProductCode             : "$(APP_PRODUCT_CODE)"
+  ContentType             : Application
+  Logo                    : Homebrew
+
+RomFs:
+  RootPath                : $(APP_ROMFS)
+
+TitleInfo:
+  Category                : Application
+  UniqueId                : $(APP_UNIQUE_ID)
+
+Option:
+  UseOnSD                 : true
+  FreeProductCode         : true
+  MediaFootPadding        : false
+  EnableCompress          : true
+  EnableCrypt             : false
+
+AccessControlInfo:
+  CoreVersion                   : 2
+
+  DisableDebug                  : true
+  EnableForceDebug              : false
+  CanWriteSharedPage            : true
+  CanUsePrivilegedPriority      : false
+  CanUseNonAlphabetAndNumber    : true
+  PermitMainFunctionArgument    : true
+  CanShareDeviceMemory          : true
+  RunnableOnSleep               : false
+  SpecialMemoryArrange          : true
+
+  IdealProcessor                : 0
+  AffinityMask                  : 1
+  Priority                      : 16
+  MaxCpu                        : 0
+
+  MemoryType                    : Application
+  SystemMode                    : 64MB
+  SystemModeExt                 : Legacy
+  CpuSpeed                      : 268MHz
+  EnableL2Cache                 : false
+  CanAccessCore2                : true
+  HandleTableSize               : 512
+
+  # Acesso ao cartão SD: é onde moram perfis.txt e os sons de quem quiser
+  # trocá-los sem recompilar.
+  FileSystemAccess:
+   - DirectSdmc
+   - CategoryHomeMenu
+
+  # O som exige estes dois. Sem eles o app abre, o ndsp tenta escrever na
+  # memória do DSP, o console vê acesso não mapeado e derruba o processo --
+  # o emulador registrou exatamente isso em 0x1FF74xxx.
+  #
+  # Rodando pelo Homebrew Launcher nada disso aparece: o launcher já tem os
+  # mapeamentos e o app herda. É a diferença que faz um .3dsx funcionar e o
+  # .cia do mesmo código morrer no arranque.
+  IORegisterMapping:
+   - 1ec40000-1ec4ffff      # registradores do DSP
+  MemoryMapping:
+   - 1f000000-1f5fffff:r    # VRAM, leitura
+   - 1ff00000-1ff7ffff      # memória do DSP, leitura e escrita
+
+  SystemCallAccess:
+    ArbitrateAddress: 34
+    Break: 60
+    CancelTimer: 28
+    ClearEvent: 25
+    ClearTimer: 29
+    CloseHandle: 35
+    ConnectToPort: 45
+    ControlMemory: 1
+    CreateAddressArbiter: 33
+    CreateEvent: 23
+    CreateMemoryBlock: 30
+    CreateMutex: 19
+    CreateSemaphore: 21
+    CreateThread: 8
+    CreateTimer: 26
+    DuplicateHandle: 39
+    ExitProcess: 3
+    ExitThread: 9
+    GetCurrentProcessorNumber: 17
+    GetHandleInfo: 41
+    GetProcessId: 53
+    GetProcessIdOfThread: 54
+    GetProcessIdealProcessor: 6
+    GetProcessInfo: 43
+    GetResourceLimit: 56
+    GetResourceLimitCurrentValues: 58
+    GetResourceLimitLimitValues: 57
+    GetSystemInfo: 42
+    GetSystemTick: 40
+    GetThreadContext: 59
+    GetThreadId: 55
+    GetThreadIdealProcessor: 15
+    GetThreadInfo: 44
+    GetThreadPriority: 11
+    MapMemoryBlock: 31
+    OutputDebugString: 61
+    QueryMemory: 2
+    ReleaseMutex: 20
+    ReleaseSemaphore: 22
+    SendSyncRequest1: 46
+    SendSyncRequest2: 47
+    SendSyncRequest3: 48
+    SendSyncRequest4: 49
+    SendSyncRequest: 50
+    SetThreadPriority: 12
+    SignalEvent: 24
+    SleepThread: 10
+    UnmapMemoryBlock: 32
+    WaitSynchronization1: 36
+    WaitSynchronizationN: 37
+
+  InterruptNumbers:
+  ServiceAccessControl:
+   - APT:U          # applets: é o que abre o teclado do sistema
+   - ac:u           # estado da rede
+   - $hioFIO
+   - cfg:u
+   - csnd:SND
+   - dsp::DSP       # som
+   - frd:u          # nome, Mii e a credencial NEX -- o coração do app
+   - fs:USER
+   - gsp::Gpu
+   - hid:USER
+   - http:C         # o POST do cadastro
+   - ndm:u
+   - nim:aoc
+   - ns:s
+   - ptm:u
+   - pxi:dev
+   - soc:U          # tabela de DNS e de rotas
+   - ssl:C
+   - y2r:u
+
+SystemControlInfo:
+  SaveDataSize: 0KB
+  RemasterVersion: 0
+  # 0x4000 (o padrão) é apertado: a música lê do disco em blocos e o desenho
+  # monta texto a cada quadro.
+  StackSize: 0x40000

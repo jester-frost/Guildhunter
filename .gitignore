@@ -1,0 +1,15 @@
+# Artefatos de build (o objeto do devkitPro)
+build/
+*.o
+*.elf
+*.map
+*.smdh
+# O build limpo distribuido fica em dist/ (versionado); os da raiz nao
+/guild-hunter.3dsx
+/guild-hunter.cia
+# Conteudo da Capcom / arte propria NUNCA entram (ficam na maquina de quem tem o jogo)
+sons/
+romfs/
+assets/
+banner-proprio.png
+__pycache__/
